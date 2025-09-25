@@ -86,16 +86,16 @@ def LQRStep(n_state,
                     kt = -(1./Qt_uu.squeeze(2))*qt_u
                 else:
                     if u_zero_I is None:
-                        Qt_uu_inv = [
-                            torch.pinverse(Qt_uu[i]) for i in range(Qt_uu.shape[0])
-                        ]
-                        Qt_uu_inv = torch.stack(Qt_uu_inv)
-                        Kt = -Qt_uu_inv.bmm(Qt_ux)
-                        kt = util.bmv(-Qt_uu_inv, qt_u)
+                        # Qt_uu_inv = [
+                        #     torch.pinverse(Qt_uu[i]) for i in range(Qt_uu.shape[0])
+                        # ]
+                        # Qt_uu_inv = torch.stack(Qt_uu_inv)
+                        # Kt = -Qt_uu_inv.bmm(Qt_ux)
+                        # kt = util.bmv(-Qt_uu_inv, qt_u)
 
-                        # Qt_uu_LU = Qt_uu.lu()
-                        # Kt = -Qt_ux.lu_solve(*Qt_uu_LU)
-                        # kt = -qt_u.lu_solve(*Qt_uu_LU)
+                        Qt_uu_LU, Qt_uu_pivots = torch.linalg.lu_factor(Qt_uu)
+                        Kt = -torch.linalg.lu_solve(Qt_uu_LU, Qt_uu_pivots, Qt_ux)
+                        kt = -torch.linalg.lu_solve(Qt_uu_LU, Qt_uu_pivots, qt_u.unsqueeze(2)).squeeze(2)
                     else:
                         # Solve with zero constraints on the active controls.
                         I = u_zero_I[t].float()
