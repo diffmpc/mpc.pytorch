@@ -323,7 +323,7 @@ class MPC(Module):
                 if self.exit_unconverged:
                     assert False
 
-                if self.verbose >= 0:
+                if self.verbose > 0:
                     print("LQR Warning: All examples did not converge to a fixed point.")
                     print("Detaching and *not* backpropping through the bad examples.")
 
